@@ -74,9 +74,10 @@ export default function CanoBlofOnline() {
   }, []);
 
   // ---- Bitiş videosu (max 5 sn + hata olursa kapan)
-  const [showWin, setShowWin] = useState(false);
-  useEffect(() => {
-    // Bağlı değilken oda sayıları/phase bilgisini 5 sn'de bir çek
+  // ---- Bitiş videosu (max 5 sn + hata olursa kapan)
+const [showWin, setShowWin] = useState(false);
+
+// Bağlı değilken oda sayıları/phase bilgisini 5 sn'de bir çek
 useEffect(() => {
   if (connected) return;
   let stop = false;
@@ -86,21 +87,24 @@ useEffect(() => {
       const res = await fetch(`${SERVER_HTTP.replace(/\/$/,'')}/rooms`, { cache: 'no-store' });
       const data = await res.json();
       if (!stop) setRoomsInfo(data);
-    } catch(e) {
+    } catch (e) {
       // sessiz geç
     }
   }
   pull();
   const t = setInterval(pull, 5000);
   return () => { stop = true; clearInterval(t); };
-}, [connected]);
+}, [connected, SERVER_HTTP]);
 
-    if (state.phase === 'end' && state.result) {
-      setShowWin(true);
-      const t = setTimeout(() => setShowWin(false), 5000);
-      return () => clearTimeout(t);
-    }
-  }, [state.phase, state.result]);
+// Round bittiğinde kazanma videosunu göster
+useEffect(() => {
+  if (state.phase === 'end' && state.result) {
+    setShowWin(true);
+    const t = setTimeout(() => setShowWin(false), 5000);
+    return () => clearTimeout(t);
+  }
+}, [state.phase, state.result]);
+
 
   // ---- WS bağlan
   const [nameChecked, setNameChecked] = useState(false); // aynı isim koruması için
@@ -141,12 +145,9 @@ useEffect(() => {
     }
 
     if (msg.type === 'your_card') {
-      // Kartım ve rolüm
-      // Örn: { role: 'WORD'|'SPY', title: 'MASUM'|'CASUS', words?:[] }
-      setMyRole(msg.role || null);
-      // İstersen burada myCard state’i de set edebilirsin:
-      // setMyCard({ role: msg.role, title: msg.title, words: msg.words || null });
-    }
+  setMyRole(msg.role || null);
+  setMyCard({ role: msg.role, title: msg.title, words: msg.words || null });
+}
 
     if (msg.type === 'round_started') {
       // Yeni round başlangıcında lokal resetler
@@ -325,7 +326,6 @@ useEffect(() => {
   ))}
 </select>
 
-              />
               <input
                 ref={nameInputRef}
                 value={name}
