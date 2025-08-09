@@ -321,7 +321,7 @@ useEffect(() => {
       {/* BLUR altında kalan içerik */}
       <div className={appBlur ? 'appBlur' : ''}>
         <header className="header">
-          <div className="logo">♠ Cano Blöf</div>
+          <div className="logo">♠ Blöf xD</div>
           <div className="roomTag">Oda: {roomId.toUpperCase()}</div>
         </header>
 
