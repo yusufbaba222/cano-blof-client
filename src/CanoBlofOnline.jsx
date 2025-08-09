@@ -65,8 +65,11 @@ export default function CanoBlofOnline() {
       if (!el) return;
       const r = el.getBoundingClientRect();
       // Kenarlardan güvenlik payı
-      setRadX(Math.max(180, Math.floor(r.width / 2 - 160)));
-      setRadY(Math.max(140, Math.floor(r.height / 2 - 130)));
+      const isNarrow = r.width < 760;
+const padX = isNarrow ? 120 : 160;
+const padY = isNarrow ? 110 : 130;
+setRadX(Math.max(isNarrow ? 140 : 180, Math.floor(r.width / 2 - padX)));
+setRadY(Math.max(isNarrow ? 110 : 140, Math.floor(r.height / 2 - padY)));
     }
     recalc();
     window.addEventListener('resize', recalc);
@@ -234,13 +237,16 @@ useEffect(() => {
 
   // ---- Otomatik fokus
   useEffect(() => {
-    if (!connected) { setTimeout(() => nameInputRef.current?.focus(), 0); }
-  }, [connected]);
-  useEffect(() => {
-    if (connected && state.phase === 'hinting') {
-      setTimeout(() => hintInputRef.current?.focus(), 0);
-    }
-  }, [state.phase, connected]);
+    useEffect(() => {
+  if (connected && state.phase === 'hinting') {
+    setTimeout(() => {
+      hintInputRef.current?.focus();
+      // mobile klavye açıldığında input görünür kalsın
+      hintInputRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+    }, 0);
+  }
+}, [state.phase, connected]);
+
 
   const me = state.players.find((p) => p.id === myId);
   const isHost = state.hostId && myId && state.hostId === myId;
@@ -584,6 +590,10 @@ function SpyGuess({ onGuess, myRole }) {
 }
 
 const cssStyles = `
+@supports (height: 100dvh) {
+  html, body, #root { height: 100dvh; }
+}
+
 *{box-sizing:border-box}
 :root{ --card-w:96px; --card-h:134px; }
 html,body,#root{height:100%}
@@ -805,4 +815,76 @@ button{cursor:pointer}
   margin:8px 0; padding:8px; border:1px solid rgba(255,255,255,.15); border-radius:10px; background:rgba(255,255,255,.06);
   backdrop-filter: blur(6px);
 }
+/* --- Mobile optimizasyonları --- */
+@media (max-width: 1024px) {
+  .layout{
+    grid-template-columns: 1fr;    /* sağ panel alta iner */
+    height: calc(100dvh - 88px);   /* mobile keyboard için dinamik vh */
+    gap: 10px;
+  }
+
+  .tableHUD{ font-size: 12px; padding: 6px 8px }
+
+  .hintsBox{ max-height: 28vh }
+
+  :root{
+    --card-w: 86px;
+    --card-h: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .root{ padding: 8px }
+  .logo{ font-size: 22px }
+  .roomTag{ font-size: 12px }
+
+  .panel{ padding: 10px; border-radius: 12px }
+  .panelTitle{ font-size: 14px }
+
+  .dockInner input{ min-width: 220px } /* alt ipucu barındaki input */
+  input{ min-width: 140px; padding: 9px; border-radius: 10px }
+
+  .btnPrimary, .btnCall, .btnRaise, .btnCheck{
+    padding: 9px 14px; border-radius: 12px; font-size: 14px;
+  }
+
+  :root{
+    --card-w: 76px;
+    --card-h: 108px;
+  }
+
+  .avatar{ width:50px; height:50px; font-size:18px }
+  .nameTag{ font-size: 11px }
+
+  .winCaption{ font-size: 22px }
+}
+
+@media (max-width: 420px) {
+  .dockInner{ padding: 8px }
+  .dockInner input{ min-width: 180px }
+
+  :root{
+    --card-w: 70px;
+    --card-h: 100px;
+  }
+}
+
+/* iPhone safe area padding */
+@supports(padding: max(0px)) {
+  .root{
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+  .hintDock{
+    bottom: max(10px, env(safe-area-inset-bottom));
+    .btnPlayer{
+  min-height: 40px;
+  padding: 10px 14px;
+}
+.wrap{ gap: 10px }
+.row{ gap: 10px }
+
+  }
+
+
 `;
