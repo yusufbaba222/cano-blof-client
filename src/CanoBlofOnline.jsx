@@ -236,16 +236,20 @@ useEffect(() => {
 
 
   // ---- Otomatik fokus
-  useEffect(() => {
-    useEffect(() => {
+useEffect(() => {
+  if (!connected) { setTimeout(() => nameInputRef.current?.focus(), 0); }
+}, [connected]);
+
+useEffect(() => {
   if (connected && state.phase === 'hinting') {
     setTimeout(() => {
       hintInputRef.current?.focus();
-      // mobile klavye açıldığında input görünür kalsın
+      // mobile klavye açılınca görünür kalsın
       hintInputRef.current?.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
     }, 0);
   }
 }, [state.phase, connected]);
+
 
 
   const me = state.players.find((p) => p.id === myId);
@@ -877,14 +881,17 @@ button{cursor:pointer}
   }
   .hintDock{
     bottom: max(10px, env(safe-area-inset-bottom));
-    .btnPlayer{
+  }
+}
+
+/* Dokunmatik hedefler */
+.btnPlayer{
   min-height: 40px;
   padding: 10px 14px;
 }
 .wrap{ gap: 10px }
 .row{ gap: 10px }
 
-  }
 
 
 `;
