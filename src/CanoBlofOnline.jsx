@@ -77,7 +77,6 @@ export default function CanoBlofOnline() {
   }, [state.phase, state.result]);
 
   // ---- WS bağlan
-  const [nameChecked, setNameChecked] = useState(false); // aynı isim koruması için
   useEffect(() => {
   if (!connected) return;
 
