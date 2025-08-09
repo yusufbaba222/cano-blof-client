@@ -11,7 +11,7 @@ const WS_URL =
 
 
 export default function CanoBlofOnline() {
-  document.title = 'ÖZDEMİR CASİNOYAA HOŞGELDİN';
+  document.title = 'ÖZDEMİR CASİNOYA HOŞGELDİN';
 
   // ---- Bağlantı / kimlik
   const [roomId, setRoomId] = useState('ROOM1');
