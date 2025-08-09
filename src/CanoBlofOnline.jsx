@@ -2,11 +2,12 @@ import React, { useEffect, useMemo, useRef, useState, useLayoutEffect } from 're
 
 const WS_URL =
   import.meta.env.VITE_WS_URL ||
+  (location.protocol === 'https:' ? `wss://${location.host}` : 'ws://localhost:8080');
   const SERVER_HTTP =
   WS_URL.startsWith('wss://') ? ('https://' + WS_URL.slice(6)) :
   WS_URL.startsWith('ws://')  ? ('http://'  + WS_URL.slice(5)) :
   WS_URL;
-  (location.protocol === 'https:' ? `wss://${location.host}` : 'ws://localhost:8080');
+  
 
 
 export default function CanoBlofOnline() {
