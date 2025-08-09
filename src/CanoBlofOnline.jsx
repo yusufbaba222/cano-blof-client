@@ -6,7 +6,7 @@ const WS_URL =
 
 
 export default function CanoBlofOnline() {
-  document.title = 'Cano Blöf – Red Oval Casino';
+  document.title = 'Ronican Casino';
 
   // ---- Bağlantı / kimlik
   const [roomId, setRoomId] = useState('ROOM1');
