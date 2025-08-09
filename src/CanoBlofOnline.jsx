@@ -2,6 +2,10 @@ import React, { useEffect, useMemo, useRef, useState, useLayoutEffect } from 're
 
 const WS_URL =
   import.meta.env.VITE_WS_URL ||
+  const SERVER_HTTP =
+  WS_URL.startsWith('wss://') ? ('https://' + WS_URL.slice(6)) :
+  WS_URL.startsWith('ws://')  ? ('http://'  + WS_URL.slice(5)) :
+  WS_URL;
   (location.protocol === 'https:' ? `wss://${location.host}` : 'ws://localhost:8080');
 
 
@@ -26,6 +30,8 @@ export default function CanoBlofOnline() {
     hintRound: 0,
     result: null,
   });
+  const [roomsInfo, setRoomsInfo] = useState({ ROOM1:{count:0,phase:'lobby'}, ROOM2:{count:0,phase:'lobby'}, ROOM3:{count:0,phase:'lobby'} });
+
 
   // ---- Rol / kart / kelime
   const [myRole, setMyRole] = useState(null); // 'WORD' | 'SPY' | null
@@ -69,6 +75,25 @@ export default function CanoBlofOnline() {
   // ---- Bitiş videosu (max 5 sn + hata olursa kapan)
   const [showWin, setShowWin] = useState(false);
   useEffect(() => {
+    // Bağlı değilken oda sayıları/phase bilgisini 5 sn'de bir çek
+useEffect(() => {
+  if (connected) return;
+  let stop = false;
+
+  async function pull() {
+    try {
+      const res = await fetch(`${SERVER_HTTP.replace(/\/$/,'')}/rooms`, { cache: 'no-store' });
+      const data = await res.json();
+      if (!stop) setRoomsInfo(data);
+    } catch(e) {
+      // sessiz geç
+    }
+  }
+  pull();
+  const t = setInterval(pull, 5000);
+  return () => { stop = true; clearInterval(t); };
+}, [connected]);
+
     if (state.phase === 'end' && state.result) {
       setShowWin(true);
       const t = setTimeout(() => setShowWin(false), 5000);
@@ -291,11 +316,14 @@ export default function CanoBlofOnline() {
         {!connected && (
           <div className="panel glass">
             <div className="row">
-              <input
-                value={roomId}
-                onChange={(e) => setRoomId(e.target.value)}
-                placeholder="Oda Kodu"
-                onKeyDown={(e) => { if (e.key === 'Enter') setConnected(true); }}
+              <select value={roomId} onChange={(e)=>setRoomId(e.target.value)}>
+  {['ROOM1','ROOM2','ROOM3'].map(r => (
+    <option key={r} value={r}>
+      {r} — {roomsInfo?.[r]?.count ?? 0} kişi ({roomsInfo?.[r]?.phase || 'lobby'})
+    </option>
+  ))}
+</select>
+
               />
               <input
                 ref={nameInputRef}
